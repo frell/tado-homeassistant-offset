@@ -33,6 +33,9 @@ variables:
   last_updated: "{{ state_attr(source_temp_sensor, 'offset_last_changed') if state_attr(source_temp_sensor, 'offset_last_changed') != None else utcnow() - timedelta(seconds=(900|int +100)) }}"
 
 trigger:
+  # Re reval variables at least once every 15 minutes
+- platform: time_pattern  
+  minutes: "/15"
 - platform: state
   entity_id: !input target_tado
   attribute: current_temperature
@@ -54,7 +57,7 @@ condition:
 - "{{ tado_temp|int != 0 or tado_temp == '0' }}"
 - "{{ actual_temp|int != 0 or actual_temp == '0' }}"
 # Only run if the climate device is preset is 'home' or if 'early start' has been activated or offset is more than a difference of 2
-- "{{ state_attr(target_tado, 'preset_mode') == 'home' or states(early_start) == 'on' or offset|float >= 2 or offset|float <= -2}}"
+- "{{ state_attr(target_tado, 'preset_mode') == 'home' or states(early_start) == 'on' or offset|float >= 1 or offset|float <= -1}}"
 # Only run if new offset is different to current offset
 - "{{ offset != 0 }}"
 # Only run if there is a difference in temperature greater than the tolerance
